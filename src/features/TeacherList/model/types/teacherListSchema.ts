@@ -1,8 +1,8 @@
 import { AxiosError } from "axios";
 
-export interface signUpSchema {
+export interface teacherListSchema {
   isLoading: boolean;
   error: AxiosError | null;
   isSuccess: boolean;
-  signUp: (id: string) => Promise<void>;
+  addTeacher: (id: string, userId: string) => Promise<void>;
 }

@@ -1,7 +1,9 @@
 import { UserList } from "@src/entities/UserList";
-import { useEditCourseStore } from "@src/features/CourseEdit";
+import { useEffect } from "react";
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { useTeacherListStore } from "../model/store/teacherListStore";
 
 interface TeacherListModalProps {
   courseId: string | undefined;
@@ -9,6 +11,7 @@ interface TeacherListModalProps {
   setShow: (value: boolean) => void;
   reload: (id: string) => void;
   updateTeachingCourses: () => void;
+  updateNavbar: () => void;
 }
 
 interface CourseFormData {
@@ -16,9 +19,16 @@ interface CourseFormData {
 }
 
 export const TeacherListModal = (props: TeacherListModalProps) => {
-  const { courseId, show, setShow, reload, updateTeachingCourses } = props;
+  const {
+    courseId,
+    show,
+    setShow,
+    reload,
+    updateTeachingCourses,
+    updateNavbar,
+  } = props;
 
-  const { isLoading, addTeacher, error } = useEditCourseStore();
+  const { isLoading, addTeacher, error, isSuccess } = useTeacherListStore();
 
   const {
     control,
@@ -30,15 +40,25 @@ export const TeacherListModal = (props: TeacherListModalProps) => {
 
   const onSave = (data: CourseFormData) => {
     addTeacher(courseId!, data.teacherId)
-      .then(() => {
-        setShow(false);
-        reload(courseId!);
-        updateTeachingCourses();
-      })
-      .catch(() => {
-        return;
-      });
   };
+
+  const notifySuccess = () => toast("Учитель успешно добавлен");
+const notifyError = () => toast("Не удалось добавить учителя");
+
+  useEffect(() => {
+    if (isSuccess) {
+      notifySuccess();
+      useTeacherListStore.setState({ isSuccess: false, error: null });
+      setShow(false);
+      reload(courseId!);
+      updateTeachingCourses();
+      updateNavbar();
+    }
+    if (error) {
+      notifyError();
+      useTeacherListStore.setState({ isSuccess: false });
+    }
+  }, [isSuccess, error]);
 
   return (
     <Modal size="lg" className="mt-5" show={show} onHide={onClose}>
@@ -72,14 +92,14 @@ export const TeacherListModal = (props: TeacherListModalProps) => {
 
         <Modal.Footer>
           {/* @ts-ignore */}
-          {error?.response?.data?.message ==
+          {error?.response?.data?.message ===
             "This user is already teaching at this course." && (
             <Form.Text className="text-danger me-auto">
               Нельзя добавить преподавателя этого же курса
             </Form.Text>
           )}
           {/* @ts-ignore */}
-          {error?.response?.data?.message ==
+          {error?.response?.data?.message ===
             "Cannot assign teacher role to a student already attending the course." && (
             <Form.Text className="text-danger me-auto">
               Нельзя добавить студента этого же курса

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { Controller, useForm } from "react-hook-form";
 import { UserList } from "@src/entities/UserList";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useAdminCourseStore } from "../model/store/adminCourse";
+import { toast } from "react-toastify";
 
 interface CourseCreateModalProps {
   groupId: string | undefined;
@@ -19,12 +20,15 @@ interface CourseFormData {
   maximumStudentsCount: number;
   semester: string;
   mainTeacherId: string;
+  annotations: string;
+  requirements: string;
 }
 
 export const CreateCourseModal = (props: CourseCreateModalProps) => {
   const { groupId, show, setShow, reload } = props;
 
-  const { isLoading, addCourse } = useAdminCourseStore();
+  const { isLoading, addCourse, createError, isCreated } =
+    useAdminCourseStore();
 
   const [requirements, setRequirements] = useState("");
   const [annotations, setAnnotations] = useState("");
@@ -45,23 +49,19 @@ export const CreateCourseModal = (props: CourseCreateModalProps) => {
 
   const onClose = () => setShow(false);
 
-  const onSave = (data: CourseFormData) => {
-    addCourse(
-      {
-        ...data,
-        requirements,
-        annotations,
-        startYear: Number(data.startYear),
-        maximumStudentsCount: Number(data.maximumStudentsCount),
-      },
-      groupId!
-    )
-      .then(() => {
-        reload(groupId!);
-      })
-      .then(() => {
-        setShow(false);
-      });
+  const onSubmit = (data: CourseFormData) => {
+    if (annotations || requirements) {
+      addCourse(
+        {
+          ...data,
+          requirements,
+          annotations,
+          startYear: Number(data.startYear),
+          maximumStudentsCount: Number(data.maximumStudentsCount),
+        },
+        groupId!
+      );
+    }
   };
 
   type RadioOption = {
@@ -74,13 +74,29 @@ export const CreateCourseModal = (props: CourseCreateModalProps) => {
     { label: "Осенний", value: "Autumn" },
   ];
 
+  const notifySuccess = () => toast("Курс успешно добавлен");
+  const notifyError = () => toast("Произошла ошибка при добавлении курса");
+
+  useEffect(() => {
+    if (isCreated) {
+      notifySuccess();
+      reload(groupId!);
+      setShow(false);
+      useAdminCourseStore.setState({ isCreated: false, createError: null });
+    }
+    if (createError) {
+      notifyError();
+      useAdminCourseStore.setState({ isCreated: false, createError: null });
+    }
+  }, [isCreated, createError]);
+
   return (
     <Modal size="lg" className="mt-5" show={show} onHide={onClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Редактирование группы</Modal.Title>
+        <Modal.Title>Добавить курс</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit(onSave)}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
           <Form.Group className="mb-3" controlId="formBasicGroupName">
             <Form.Label>Название курса</Form.Label>
             <Form.Control
@@ -96,10 +112,16 @@ export const CreateCourseModal = (props: CourseCreateModalProps) => {
           <Form.Group className="mb-3" controlId="formBasicReq">
             <Form.Label>Требования</Form.Label>
             <ReactQuill value={requirements} onChange={handleChangeReq} />
+            {!requirements && (
+              <Form.Text className="text-danger">Укажите требования</Form.Text>
+            )}
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicAnn">
             <Form.Label>Аннотации</Form.Label>
             <ReactQuill value={annotations} onChange={handleChangeAnn} />
+            {!annotations && (
+              <Form.Text className="text-danger">Укажите аннотации</Form.Text>
+            )}
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicSemester">
             <Form.Label>Семестр</Form.Label>
@@ -153,7 +175,6 @@ export const CreateCourseModal = (props: CourseCreateModalProps) => {
               </Form.Text>
             )}
           </Form.Group>
-
           <Form.Group className="mb-3" controlId="formBasicMaxStudentsCount">
             <Form.Label>Максимальное количество студентов</Form.Label>
             <Form.Control
@@ -204,7 +225,7 @@ export const CreateCourseModal = (props: CourseCreateModalProps) => {
           <Button variant="secondary" onClick={onClose}>
             Отмена
           </Button>
-          <Button variant="primary" onClick={handleSubmit(onSave)}>
+          <Button variant="primary" onClick={handleSubmit(onSubmit)}>
             {isLoading ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />

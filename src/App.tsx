@@ -41,7 +41,7 @@ function App() {
     );
   }
 
-  if (userCountry === "RU" && userCountry) {
+  if (userCountry !== "RU" && userCountry) {
     return (
       <section className={"country-error"}>
         <Card className="p-4 bg-secondary text-light">

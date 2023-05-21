@@ -3,9 +3,16 @@ import { AxiosError } from "axios";
 
 export interface editCourseSchema {
   isLoading: boolean;
-  error: AxiosError<unknown, any> | null;
+  
+  infoError: AxiosError<unknown, any> | null;
+  statusError: AxiosError<unknown, any> | null;
+  notificationError: AxiosError<unknown, any> | null;
 
-  addTeacher: (id: string, userId: string) => Promise<void>;
+  isInfoUpdated: boolean;
+  isStatusUpdated: boolean;
+  isNotificationCreated: boolean;
+
+
   createNotification: (
     id: string,
     notification: notificationState

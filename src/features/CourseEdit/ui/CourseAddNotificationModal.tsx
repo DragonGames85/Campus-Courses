@@ -2,6 +2,8 @@ import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import "react-quill/dist/quill.snow.css";
 import { useEditCourseStore } from "../model/store/editCourse";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 interface NotificationModalProps {
   courseId: string | undefined;
@@ -10,15 +12,23 @@ interface NotificationModalProps {
   reload: (id: string) => void;
 }
 
+interface FormData {
+  text: string;
+  isImportant: boolean;
+}
+
 export const CourseAddNotificationModal = (props: NotificationModalProps) => {
   const { courseId, show, setShow, reload } = props;
 
-  const { createNotification, isLoading } = useEditCourseStore();
+  const {
+    createNotification,
+    isLoading,
+    notificationError,
+    isNotificationCreated,
+  } = useEditCourseStore();
 
-  interface FormData {
-    text: string;
-    isImportant: boolean;
-  }
+  const notifySuccess = () => toast("Уведомление успешно создано");
+  const notifyError = () => toast("Произошла ошибка при создании уведомления");
 
   const {
     register,
@@ -29,14 +39,27 @@ export const CourseAddNotificationModal = (props: NotificationModalProps) => {
   const handleClose = () => setShow(false);
 
   const onSave = (data: FormData) => {
-    createNotification(courseId!, { ...data })
-      .then(() => {
-        reload(courseId!);
-      })
-      .then(() => {
-        setShow(false);
-      });
+    createNotification(courseId!, { ...data });
   };
+
+  useEffect(() => {
+    if (isNotificationCreated) {
+      notifySuccess();
+      reload(courseId!);
+      setShow(false);
+      useEditCourseStore.setState({
+        isNotificationCreated: false,
+        notificationError: null,
+      });
+    }
+    if (notificationError) {
+      notifyError();
+      useEditCourseStore.setState({
+        isNotificationCreated: false,
+        notificationError: null,
+      });
+    }
+  }, [isNotificationCreated, notificationError]);
 
   return (
     <Modal className="mt-5" show={show} onHide={handleClose}>

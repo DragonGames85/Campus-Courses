@@ -1,24 +1,22 @@
 import axios from "axios";
 import { create } from "zustand";
 import { AuthSchema } from "../types/AuthSchema";
-import { toast } from "react-toastify";
 
 export const useAuthStore = create<AuthSchema>()(set => ({
   isAuth: !!localStorage.getItem("jwt"),
-  error: null,
   isLoading: false,
+
+  loginError: null,
+  registerError: null,
 
   registerUser: async (
     fullName,
     birthDate,
     email,
     password,
-    confirmPassword,
-    navigate,
-    showErrors
+    confirmPassword
   ) => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Вы успешно зарегистрировались");
     try {
       const response = await axios.post(
         "registration",
@@ -49,20 +47,18 @@ export const useAuthStore = create<AuthSchema>()(set => ({
         "profile",
         JSON.stringify({ ...response2.data, roles: response3.data })
       );
-      set({ isAuth: true, error: null });
-      navigate("/");
-      notifySuccess();
+      set({ isAuth: true, registerError: null });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error, isAuth: false });
-      showErrors(true);
+      if (axios.isAxiosError(error))
+        set({ registerError: error, isAuth: false });
     } finally {
       set({ isLoading: false });
+      setTimeout(() => set({ registerError: null }), 2000);
     }
   },
 
-  loginUser: async (email, password, navigate, showErrors) => {
+  loginUser: async (email, password) => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Вход выполнен");
     try {
       const response1 = await axios.post("login", {
         email,
@@ -86,15 +82,12 @@ export const useAuthStore = create<AuthSchema>()(set => ({
         "profile",
         JSON.stringify({ ...response2.data, roles: response3.data })
       );
-
-      set({ isAuth: true, error: null });
-      navigate("/");
-      notifySuccess();
+      set({ loginError: null, isAuth: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error, isAuth: false });
-      showErrors(true);
+      if (axios.isAxiosError(error)) set({ loginError: error, isAuth: false });
     } finally {
       set({ isLoading: false });
+      setTimeout(() => set({ loginError: null }), 2000);
     }
   },
 
@@ -102,6 +95,6 @@ export const useAuthStore = create<AuthSchema>()(set => ({
     localStorage.removeItem("jwt");
     localStorage.removeItem("profile");
     navigate("/");
-    set({ isAuth: false, error: null });
+    set({ isAuth: false });
   },
 }));

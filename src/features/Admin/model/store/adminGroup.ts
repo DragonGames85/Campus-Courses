@@ -1,17 +1,20 @@
 import axios from "axios";
 import { create } from "zustand";
 import { adminGroupSchema } from "../types/adminGroupSchema";
-import { toast } from "react-toastify";
 
 export const useAdminGroupStore = create<adminGroupSchema>()(set => ({
   isLoading: false,
-  error: null,
+
+  createError: null,
+  updateError: null,
+  deleteError: null,
+
+  isCreated: false,
+  isDeleted: false,
+  isUpdated: false,
 
   updateGroup: async (id, name) => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Группа успешно изменена");
-    const notifyError = () =>
-      toast("Произошла ошибка при редактировании группы");
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.put(
@@ -23,19 +26,16 @@ export const useAdminGroupStore = create<adminGroupSchema>()(set => ({
           },
         }
       );
-      set({ error: null });
-      notifySuccess();
+      set({ updateError: null, isUpdated: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error))
+        set({ updateError: error, isUpdated: false });
     } finally {
       set({ isLoading: false });
     }
   },
 
   addGroup: async name => {
-    const notifySuccess = () => toast("Группа успешно добавлена");
-    const notifyError = () => toast("Произошла ошибка при добавлении группы");
     set({ isLoading: true });
     try {
       const jwt = localStorage.getItem("jwt");
@@ -48,11 +48,10 @@ export const useAdminGroupStore = create<adminGroupSchema>()(set => ({
           },
         }
       );
-      set({ error: null });
-      notifySuccess();
+      set({ createError: null, isCreated: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error))
+        set({ createError: error, isCreated: false });
     } finally {
       set({ isLoading: false });
     }
@@ -60,8 +59,6 @@ export const useAdminGroupStore = create<adminGroupSchema>()(set => ({
 
   deleteGroup: async id => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Группа успешно удалена");
-    const notifyError = () => toast("Произошла ошибка при удалении группы");
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.delete(`groups/${id}`, {
@@ -69,11 +66,10 @@ export const useAdminGroupStore = create<adminGroupSchema>()(set => ({
           Authorization: `Bearer ${jwt}`,
         },
       });
-      set({ error: null });
-      notifySuccess();
+      set({ deleteError: null, isDeleted: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error))
+        set({ deleteError: error, isDeleted: false });
     } finally {
       set({ isLoading: false });
     }

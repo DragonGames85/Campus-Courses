@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useAdminGroupStore } from "../model/store/adminGroup";
+import { toast } from "react-toastify";
 
 interface GroupCreateModalProps {
   show: boolean;
@@ -12,7 +13,7 @@ interface GroupCreateModalProps {
 export const CreateGroupModal = (props: GroupCreateModalProps) => {
   const { show, setShow, reload } = props;
 
-  const { isLoading, addGroup } = useAdminGroupStore();
+  const { isLoading, addGroup, createError, isCreated } = useAdminGroupStore();
 
   const [nameField, setNameField] = useState("");
 
@@ -20,19 +21,29 @@ export const CreateGroupModal = (props: GroupCreateModalProps) => {
 
   const onClose = () => setShow(false);
   const onSave = () => {
-    addGroup(nameField)
-      .then(() => {
-        reload();
-      })
-      .then(() => {
-        setShow(false);
-      });
+    addGroup(nameField);
   };
+
+  const notifySuccess = () => toast("Группа успешно добавлена");
+  const notifyError = () => toast("Произошла ошибка при добавлении группы");
+
+  useEffect(() => {
+    if (isCreated) {
+      notifySuccess();
+      reload();
+      setShow(false);
+      useAdminGroupStore.setState({ isCreated: false, createError: null });
+    }
+    if (createError) {
+      notifyError();
+      useAdminGroupStore.setState({ isCreated: false, createError: null });
+    }
+  }, [isCreated, createError]);
 
   return (
     <Modal className="mt-5" show={show} onHide={onClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Редактирование группы</Modal.Title>
+        <Modal.Title>Добавить группу</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit(onSave)}>

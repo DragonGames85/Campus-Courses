@@ -1,26 +1,18 @@
 import axios from "axios";
 import { create } from "zustand";
 import { requestSchema } from "../types/requestSchema";
-import { toast } from "react-toastify";
 
 export const useRequestStore = create<requestSchema>()(set => ({
   isLoading: false,
-  error: null,
+
+  isStudentStatusUpdated: false,
+  isStudentMarksUpdated: false,
+
+  studentMarksError: null,
+  studentStatusError: null,
 
   setStudentStatus: async (courseId, studentId, status) => {
     set({ isLoading: true });
-    const notifySuccess = () =>
-      toast(
-        status === "Declined"
-          ? "Заявка студента отклонена"
-          : "Студент принят на курс"
-      );
-    const notifyError = () =>
-      toast(
-        status === "Declined"
-          ? "Произошла ошибка при отклонении заявки"
-          : "Произошла ошибка при принятии студента"
-      );
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.post(
@@ -34,11 +26,9 @@ export const useRequestStore = create<requestSchema>()(set => ({
           },
         }
       );
-      set({ error: null });
-      notifySuccess();
+      set({ studentStatusError: null, isStudentStatusUpdated: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error)) set({ studentStatusError: error, isStudentStatusUpdated: false });
     } finally {
       set({ isLoading: false });
     }
@@ -46,8 +36,6 @@ export const useRequestStore = create<requestSchema>()(set => ({
 
   setStudentMarks: async (courseId, studentId, markType, mark) => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Оценка успешно добавлена");
-    const notifyError = () => toast("Произошла ошибка при добавлении оценки");
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.post(
@@ -62,11 +50,9 @@ export const useRequestStore = create<requestSchema>()(set => ({
           },
         }
       );
-      set({ error: null });
-      notifySuccess();
+      set({ studentMarksError: null, isStudentMarksUpdated: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error)) set({ studentMarksError: error, isStudentMarksUpdated: false });
     } finally {
       set({ isLoading: false });
     }

@@ -1,6 +1,8 @@
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useEditCourseStore } from "../model/store/editCourse";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 interface CourseStatusEditModalProps {
   courseId: string | undefined;
@@ -16,7 +18,11 @@ type FormValues = {
 
 export const CourseStatusEditModal = (props: CourseStatusEditModalProps) => {
   const { status, show, setShow, courseId, reload } = props;
-  const { setCourseStatus, isLoading } = useEditCourseStore();
+  const { setCourseStatus, isLoading, isStatusUpdated, statusError } =
+    useEditCourseStore();
+
+  const notifySuccess = () => toast("Статус курса изменен");
+  const notifyError = () => toast("Произошла ошибка при изменении статуса");
 
   const {
     register,
@@ -30,13 +36,7 @@ export const CourseStatusEditModal = (props: CourseStatusEditModalProps) => {
 
   const onClose = () => setShow(false);
   const onSave = (data: FormValues) => {
-    setCourseStatus(courseId!, data.status)
-      .then(() => {
-        reload(courseId!);
-      })
-      .then(() => {
-        setShow(false);
-      });
+    setCourseStatus(courseId!, data.status);
   };
 
   const radioOptions = [
@@ -59,6 +59,25 @@ export const CourseStatusEditModal = (props: CourseStatusEditModalProps) => {
       name: "status",
     },
   ];
+
+  useEffect(() => {
+    if (isStatusUpdated) {
+      notifySuccess();
+      reload(courseId!);
+      setShow(false);
+      useEditCourseStore.setState({
+        isStatusUpdated: false,
+        statusError: null,
+      });
+    }
+    if (statusError) {
+      notifyError();
+      useEditCourseStore.setState({
+        isStatusUpdated: false,
+        statusError: null,
+      });
+    }
+  }, [isStatusUpdated, statusError]);
 
   return (
     <Modal className="mt-5" show={show} onHide={onClose}>

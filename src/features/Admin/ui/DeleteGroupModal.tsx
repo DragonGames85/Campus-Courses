@@ -1,5 +1,7 @@
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { useAdminGroupStore } from "../model/store/adminGroup";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 interface GroupDeleteModalProps {
   show: boolean;
@@ -12,19 +14,30 @@ interface GroupDeleteModalProps {
 export const DeleteGroupModal = (props: GroupDeleteModalProps) => {
   const { chosenName, chosenID, show, setShow, reload } = props;
 
-  const { deleteGroup, isLoading } = useAdminGroupStore();
+  const { deleteGroup, isLoading, deleteError, isDeleted } =
+    useAdminGroupStore();
 
   const onClose = () => setShow(false);
 
   const onDelete = () => {
-    deleteGroup(chosenID)
-      .then(() => {
-        reload();
-      })
-      .then(() => {
-        setShow(false);
-      });
+    deleteGroup(chosenID);
   };
+
+  const notifySuccess = () => toast("Группа успешно удалена");
+  const notifyError = () => toast("Произошла ошибка при удалении группы");
+
+  useEffect(() => {
+    if (isDeleted) {
+      notifySuccess();
+      reload();
+      setShow(false);
+      useAdminGroupStore.setState({ isDeleted: false, deleteError: null });
+    }
+    if (deleteError) {
+      notifyError();
+      useAdminGroupStore.setState({ isDeleted: false, deleteError: null });
+    }
+  }, [isDeleted, deleteError]);
 
   return (
     <Modal className="mt-5" show={show} onHide={onClose}>

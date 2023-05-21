@@ -4,19 +4,22 @@ import { Button, Card, Col, ListGroup, Row, Spinner } from "react-bootstrap";
 import { IoCreateOutline } from "react-icons/io5";
 import { MdAssignmentAdd } from "react-icons/md";
 import { courseState } from "../../model/types/courseState";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 interface CourseDetailsProps {
   canEdit: boolean | undefined;
   isTeacher: boolean | undefined;
   isAcceptedStudent: boolean | undefined;
   isDeclinedStudent: boolean | undefined;
-  isQueueStudent: boolean | undefined; 
+  isQueueStudent: boolean | undefined;
   havePlaces: boolean;
   Course: courseState;
   isLoading: boolean;
   reload: (id: string) => void;
   updateMyCourses: () => void;
   showModal: (value: boolean) => void;
+  updateNavbar: () => void;
 }
 
 export const CourseDetails = (props: CourseDetailsProps) => {
@@ -32,13 +35,35 @@ export const CourseDetails = (props: CourseDetailsProps) => {
     reload,
     updateMyCourses,
     showModal,
+    updateNavbar,
   } = props;
 
-  const { signUp, isLoading: requestLoading } = useSignStore();
+  const {
+    signUp,
+    isLoading: requestLoading,
+    error,
+    isSuccess,
+  } = useSignStore();
 
   const onChangeClick = () => {
     showModal(true);
   };
+  const notifySuccess = () => toast("Вы записались на курс");
+  const notifyError = () => toast("Произошла ошибка при записи на курс");
+
+  useEffect(() => {
+    if (isSuccess) {
+      notifySuccess();
+      reload(Course.id);
+      updateMyCourses();
+      updateNavbar();
+      useSignStore.setState({ isSuccess: false, error: null });
+    }
+    if (error) {
+      notifyError();
+      useSignStore.setState({ isSuccess: false, error: null });
+    }
+  }, [isSuccess, error]);
 
   if (isLoading)
     return (
@@ -109,15 +134,7 @@ export const CourseDetails = (props: CourseDetailsProps) => {
                     <Button
                       variant="success"
                       className="float-end mt-1"
-                      onClick={() =>
-                        signUp(Course.id)
-                          .then(() => {
-                            reload(Course.id);
-                          })
-                          .then(() => {
-                            updateMyCourses();
-                          })
-                      }
+                      onClick={() => signUp(Course.id)}
                     >
                       {requestLoading ? (
                         <>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useAdminGroupStore } from "../model/store/adminGroup";
+import { toast } from "react-toastify";
 
 interface GroupEditModalProps {
   show: boolean;
@@ -20,7 +21,7 @@ export const EditGroupModal = (props: GroupEditModalProps) => {
     setNameField(chosenName);
   }, [chosenName]);
 
-  const { updateGroup, isLoading } = useAdminGroupStore();
+  const { updateGroup, isLoading, updateError, isUpdated } = useAdminGroupStore();
 
   const { register, handleSubmit } = useForm();
 
@@ -30,13 +31,23 @@ export const EditGroupModal = (props: GroupEditModalProps) => {
 
   const onSave = () => {
     updateGroup(chosenID, nameField)
-      .then(() => {
-        reload();
-      })
-      .then(() => {
-        setShow(false);
-      });
   };
+
+  const notifySuccess = () => toast("Группа успешно изменена");
+  const notifyError = () => toast("Произошла ошибка при редактировании группы");
+
+  useEffect(() => {
+    if (isUpdated) {
+      notifySuccess();
+        reload();
+        setShow(false);
+      useAdminGroupStore.setState({ isUpdated: false, updateError: null });
+    }
+    if (updateError) {
+      notifyError();
+      useAdminGroupStore.setState({ isUpdated: false, updateError: null });
+    }
+  }, [isUpdated, updateError]);
 
   return (
     <Modal className="mt-5" show={show} onHide={onClose}>

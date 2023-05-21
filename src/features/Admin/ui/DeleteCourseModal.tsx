@@ -1,5 +1,7 @@
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { useAdminCourseStore } from "../model/store/adminCourse";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 interface CourseDeleteModalProps {
   show: boolean;
@@ -11,13 +13,29 @@ interface CourseDeleteModalProps {
 export const DeleteCourseModal = (props: CourseDeleteModalProps) => {
   const { courseName, courseID, show, setShow } = props;
 
-  const { isLoading, deleteCourse } = useAdminCourseStore();
+  const { isLoading, deleteCourse, deleteError, isDeleted } =
+    useAdminCourseStore();
 
   const onClose = () => setShow(false);
 
   const onDelete = () => {
     deleteCourse(courseID!);
   };
+
+  const notifySuccess = () => toast("Курс успешно удален");
+  const notifyError = () => toast("Произошла ошибка при удалении курса");
+
+  useEffect(() => {
+    if (isDeleted) {
+      notifySuccess();
+      useAdminCourseStore.setState({ isDeleted: false, deleteError: null });
+      window.history.go(-1);
+    }
+    if (deleteError) {
+      notifyError();
+      useAdminCourseStore.setState({ isDeleted: false, deleteError: null });
+    }
+  }, [isDeleted, deleteError]);
 
   return (
     <Modal className="mt-5" show={show} onHide={onClose}>

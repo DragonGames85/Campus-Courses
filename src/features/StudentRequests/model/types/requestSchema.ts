@@ -2,7 +2,10 @@ import { AxiosError } from "axios";
 
 export interface requestSchema {
   isLoading: boolean;
-  error: AxiosError<unknown, any> | null;
+  studentStatusError: AxiosError<unknown, any> | null;
+  studentMarksError: AxiosError<unknown, any> | null;
+  isStudentStatusUpdated: boolean;
+  isStudentMarksUpdated: boolean;
 
   setStudentStatus: (
     courseId: string,

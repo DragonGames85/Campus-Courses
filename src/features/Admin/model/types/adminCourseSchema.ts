@@ -9,7 +9,13 @@ interface newCourseProps extends courseItem {
 
 export interface adminCourseSchema {
   isLoading: boolean;
-  error: AxiosError<unknown, any> | null;
+  
+
+  createError: AxiosError<unknown, any> | null;
+  deleteError: AxiosError<unknown, any> | null;
+
+  isCreated: boolean;
+  isDeleted: boolean;
 
   addCourse: (
     course: Omit<newCourseProps, "id" | "status" | "remainingSlotsCount">,

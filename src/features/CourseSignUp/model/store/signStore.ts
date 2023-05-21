@@ -1,16 +1,14 @@
 import axios from "axios";
 import { create } from "zustand";
-import { toast } from "react-toastify";
 import { signUpSchema } from "../types/signUpSchema";
 
 export const useSignStore = create<signUpSchema>()(set => ({
   isLoading: false,
   error: null,
-
+  isSuccess: false,
+  
   signUp: async id => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Вы записались на курс");
-    const notifyError = () => toast("Произошла ошибка при записи на курс");
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.post(
@@ -22,11 +20,9 @@ export const useSignStore = create<signUpSchema>()(set => ({
           },
         }
       );
-      set({ error: null });
-      notifySuccess();
+      set({ error: null, isSuccess: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error)) set({ error, isSuccess: false });
     } finally {
       set({ isLoading: false });
     }

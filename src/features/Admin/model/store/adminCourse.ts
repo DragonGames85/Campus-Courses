@@ -1,16 +1,18 @@
 import axios from "axios";
 import { create } from "zustand";
 import { adminCourseSchema } from "../types/adminCourseSchema";
-import { toast } from "react-toastify";
 
 export const useAdminCourseStore = create<adminCourseSchema>()(set => ({
   isLoading: false,
-  error: null,
+
+  createError:null,
+  deleteError:null,
+
+  isCreated: false,
+  isDeleted: false,
 
   addCourse: async (course, id) => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Курс успешно добавлен");
-    const notifyError = () => toast("Произошла ошибка при добавлении курса");
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.post(`courses/${id}`, course, {
@@ -18,20 +20,17 @@ export const useAdminCourseStore = create<adminCourseSchema>()(set => ({
           Authorization: `Bearer ${jwt}`,
         },
       });
-      set({ error: null });
-      notifySuccess();
+      set({ createError: null, isCreated: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error)) set({ createError: error, isCreated: false });
     } finally {
       set({ isLoading: false });
+
     }
   },
 
   deleteCourse: async id => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Курс успешно удален");
-    const notifyError = () => toast("Произошла ошибка при удалении курса");
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.delete(`courses/${id}`, {
@@ -39,14 +38,12 @@ export const useAdminCourseStore = create<adminCourseSchema>()(set => ({
           Authorization: `Bearer ${jwt}`,
         },
       });
-      set({ error: null });
-      notifySuccess();
+      set({ deleteError: null, isDeleted: true });
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error)) set({ deleteError: error, isDeleted: false });
     } finally {
       set({ isLoading: false });
-      window.history.go(-1);
+
     }
   },
 }));

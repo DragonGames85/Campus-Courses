@@ -10,10 +10,12 @@ import { useAuthStore } from "@src/features/AuthByEmail";
 import {
   CourseAddNotificationModal,
   CourseInfoEditModal,
-  CourseMarksModal,
   CourseStatusEditModal,
 } from "@src/features/CourseEdit";
-import { StudentRequests } from "@src/features/StudentRequests";
+import {
+  CourseMarksModal,
+  StudentRequests,
+} from "@src/features/StudentRequests";
 import { TeacherList, TeacherListModal } from "@src/features/TeacherList";
 import { getCourseRoles } from "@src/shared/lib/helpers/getCourseRoles";
 import { ErrorCard } from "@src/shared/ui/ErrorCard/ErrorCard";
@@ -33,6 +35,8 @@ const CourseDetailsPage = () => {
     myCourses,
     isLoading: MCloading,
   } = useCourseListStore();
+
+  const { getProfile } = useProfileStore();
 
   const [editInfo, setEditInfo] = useState(false);
   const [editStatus, setEditStatus] = useState(false);
@@ -157,6 +161,7 @@ const CourseDetailsPage = () => {
           courseId={course?.id}
           reload={getCourseById}
           updateTeachingCourses={getTeachingCourses}
+          updateNavbar={getProfile}
         />
 
         <CourseMarksModal
@@ -179,6 +184,7 @@ const CourseDetailsPage = () => {
           Course={course!}
           reload={getCourseById}
           updateMyCourses={getMyCourses}
+          updateNavbar={getProfile}
           showModal={setEditStatus}
         />
 
@@ -221,6 +227,7 @@ const CourseDetailsPage = () => {
                   students={course!.students}
                   reload={getCourseById}
                   updateMyCourses={getMyCourses}
+                  updateNavbar={getProfile}
                 />
               </Tab>
             </Tabs>

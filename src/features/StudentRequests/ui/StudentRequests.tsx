@@ -2,7 +2,8 @@ import { Badge, Button, Col, ListGroup, Row, Spinner } from "react-bootstrap";
 import { studentState } from "../model/types/studentState";
 import { useProfileStore } from "@src/entities/Profile";
 import { useRequestStore } from "../model/store/requestStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface StudentRequestsProps {
   canAdd: boolean | undefined;
@@ -13,6 +14,7 @@ interface StudentRequestsProps {
   chooseMark: (value: boolean) => void;
   reload: (id: string) => void;
   updateMyCourses: () => void;
+  updateNavbar: () => void;
   courseId: string | undefined;
 }
 
@@ -26,10 +28,48 @@ export const StudentRequests = ({
   chooseMark,
   updateMyCourses,
   reload,
+  updateNavbar,
 }: StudentRequestsProps) => {
   const { profile } = useProfileStore();
-  const { setStudentStatus, isLoading } = useRequestStore();
+  const {
+    setStudentStatus,
+    isLoading,
+    isStudentStatusUpdated,
+    studentStatusError,
+  } = useRequestStore();
   const [pressed, setPressed] = useState("");
+
+  const notifyAcceptSuccess = () => toast("Студент принят на курс");
+  const notifyDeclineSuccess = () => toast("Заявка студента отклонена");
+
+  const notifyAcceptError = () =>
+    toast("Произошла ошибка при принятии студента");
+  const notifyDeclineError = () =>
+    toast("Произошла ошибка при отклонении заявки");
+
+  useEffect(() => {
+    if (isStudentStatusUpdated && pressed == "accept") {
+      notifyAcceptSuccess();
+      reload(courseId!);
+      updateMyCourses();
+      setPressed("");
+    }
+    if (isStudentStatusUpdated && pressed == "decline") {
+      notifyDeclineSuccess();
+      reload(courseId!);
+      updateMyCourses();
+      updateNavbar();
+      setPressed("");
+    }
+    if (studentStatusError && pressed == "accept") {
+      notifyAcceptError();
+      setPressed("");
+    }
+    if (studentStatusError && pressed == "decline") {
+      notifyDeclineError();
+      setPressed("");
+    }
+  }, [isStudentStatusUpdated, studentStatusError]);
 
   return (
     <ListGroup
@@ -86,14 +126,8 @@ export const StudentRequests = ({
                     variant="primary"
                     className="me-2"
                     onClick={() => {
-                      setStudentStatus(courseId!, student.id, "Accepted")
-                        .then(() => {
-                          reload(courseId!);
-                        })
-                        .then(() => {
-                          updateMyCourses();
-                        });
                       setPressed("accept");
+                      setStudentStatus(courseId!, student.id, "Accepted");
                     }}
                   >
                     Принять
@@ -101,14 +135,8 @@ export const StudentRequests = ({
                   <Button
                     variant="danger"
                     onClick={() => {
-                      setStudentStatus(courseId!, student.id, "Declined")
-                        .then(() => {
-                          reload(courseId!);
-                        })
-                        .then(() => {
-                          updateMyCourses();
-                        });
                       setPressed("decline");
+                      setStudentStatus(courseId!, student.id, "Declined");
                     }}
                   >
                     Отклонить заявку
@@ -182,7 +210,7 @@ export const StudentRequests = ({
               <Col>
                 <strong>{student.name}</strong>
                 <br />
-                Статус - {student.status}
+                Статус - <span className={"text-success"}>Принят в группу</span>
                 <br />
                 {student.email}
               </Col>

@@ -1,16 +1,16 @@
 import axios from "axios";
 import { create } from "zustand";
 import { profileSchema } from "../types/profileSchema";
-import { toast } from "react-toastify";
 import { useLocalProfile } from "@src/shared/lib/helpers/localProfile";
 
 export const useProfileStore = create<profileSchema>()((set, get) => ({
   error: null,
   isLoading: false,
   profile: useLocalProfile(),
+  success: false,
 
   getProfile: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true,  });
     try {
       const jwt = localStorage.getItem("jwt");
       const response = await axios.get(`profile`, {
@@ -42,9 +42,6 @@ export const useProfileStore = create<profileSchema>()((set, get) => ({
 
   putProfile: async (fullName, birthDate) => {
     set({ isLoading: true });
-    const notifySuccess = () => toast("Профиль успешно изменен");
-    const notifyError = () =>
-      toast("Произошла ошибка при редактировании профиля");
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.put(
@@ -59,12 +56,10 @@ export const useProfileStore = create<profileSchema>()((set, get) => ({
           },
         }
       );
-      set({ error: null });
-      notifySuccess();
+      set({ error: null, success: true });
       get().getProfile();
     } catch (error) {
-      if (axios.isAxiosError(error)) set({ error });
-      notifyError();
+      if (axios.isAxiosError(error)) set({ error, success: false });
     } finally {
       set({ isLoading: false });
     }

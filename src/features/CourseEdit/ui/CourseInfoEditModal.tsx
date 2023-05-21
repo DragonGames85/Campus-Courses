@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useEditCourseStore } from "../model/store/editCourse";
+import { toast } from "react-toastify";
 
 interface CourseInfoEditModalProps {
   courseId: string | undefined;
@@ -31,7 +32,8 @@ export const CourseInfoEditModal = (props: CourseInfoEditModalProps) => {
     setAnnotations(courseAnnotations!);
   }, [courseId]);
 
-  const { editCourseInfo, isLoading } = useEditCourseStore();
+  const { editCourseInfo, isLoading, infoError, isInfoUpdated } =
+    useEditCourseStore();
   const handleClose = () => setShow(false);
 
   const handleChangeReq = (content: string) => {
@@ -44,13 +46,23 @@ export const CourseInfoEditModal = (props: CourseInfoEditModalProps) => {
 
   const onSave = () => {
     editCourseInfo(courseId!, requirements!, annotations!)
-      .then(() => {
-        reload(courseId!);
-      })
-      .then(() => {
-        setShow(false);
-      });
   };
+
+  const notifySuccess = () => toast("Информация о курсе изменена");
+  const notifyError = () => toast("Произошла ошибка при редактировании курса");
+
+  useEffect(() => {
+    if (isInfoUpdated) {
+      notifySuccess();
+      reload(courseId!);
+      setShow(false);
+      useEditCourseStore.setState({ isInfoUpdated: false, infoError: null });
+    }
+    if (infoError) {
+      notifyError();
+      useEditCourseStore.setState({ isInfoUpdated: false, infoError: null });
+    }
+  }, [isInfoUpdated, infoError]);
 
   return (
     <Modal className="mt-5" show={show} onHide={handleClose}>
