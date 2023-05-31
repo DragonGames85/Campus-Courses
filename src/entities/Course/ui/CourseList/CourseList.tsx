@@ -146,14 +146,7 @@ export const CourseList = (props: courseListProps) => {
             <Col key={course.id}>
               <Card
                 style={{
-                  borderColor:
-                    course.status === "OpenForAssigning"
-                      ? "green"
-                      : course.status === "Finished"
-                      ? "red"
-                      : course.status === "Started"
-                      ? "blue"
-                      : "gray",
+                  borderColor: "cyan"
                 }}
                 className={cls.courseCard}
                 onClick={() => navigate(`/courses/${course.id}`)}

@@ -35,8 +35,8 @@ const GroupsPage = () => {
   }, []);
 
   return (
-    <Container>
-      <h2>Группы кампусных курсов</h2>
+    <Container className="p-3">
+      <h2 className="mb-3 text-white">Группы кампусных курсов</h2>
       {isAdmin && !error && (
         <Button
           className="btn btn-primary mb-4 mt-3 d-flex align-items-center"

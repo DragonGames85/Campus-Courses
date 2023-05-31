@@ -24,8 +24,8 @@ export const AppNavbar = () => {
   }, [error, isAuth]);
 
   return (
-    <Navbar expand="lg" bg="dark" variant="dark">
-      <Navbar.Brand className="ms-3" href="/">
+    <Navbar expand="lg" bg="light" variant="light">
+      <Navbar.Brand className="ms-3" as={Link} to="/">
         Кампусные курсы
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />

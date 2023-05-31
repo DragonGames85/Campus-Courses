@@ -82,7 +82,7 @@ const CourseDetailsPage = () => {
     } = getCourseRoles({ course, profile, myCourses });
 
     return (
-      <Container>
+      <Container className="text-white p-3">
         {course?.name && !isLoading ? (
           <Row className="text-center">
             <h1>{course?.name}</h1>

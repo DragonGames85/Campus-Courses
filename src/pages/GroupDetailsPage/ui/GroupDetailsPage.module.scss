@@ -5,16 +5,13 @@
   border-radius: 0.25rem;
 }
 
-.grid {
+.grid, .rows {
   font-size: 1.5rem;
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
 }
 
-.rows {
-  font-size: 1.5rem;
-}
 
 .grid:hover,
 .rows:hover {
-  background-color: #f5f5f5;
   cursor: pointer;
 }

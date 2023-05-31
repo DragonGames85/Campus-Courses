@@ -35,7 +35,7 @@ const ProfilePage = () => {
   if (error?.response?.status == 401) logoutUser(navigate);
 
   return (
-    <Container className="p-5">
+    <Container className="p-5 text-white">
       <h2>Профиль</h2>
       <ProfileCard
         isLoading={isLoading}

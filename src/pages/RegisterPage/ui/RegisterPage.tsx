@@ -6,7 +6,7 @@ const RegisterPage = () => {
   const { registerUser, isLoading, registerError } = useAuthStore();
 
   return (
-    <Container className="p-3">
+    <Container className="p-3 text-white">
       <h2 className="text-center">Регистрация нового пользователя</h2>
       <RegisterForm
         registerUser={registerUser}

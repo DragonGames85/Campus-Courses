@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import AppRouter from "./app/providers/router/AppRouter";
 import { AppNavbar } from "./widgets/NavBar/Navbar";
+import { Container } from "react-bootstrap";
 
 axios.defaults.baseURL = "https://camp-courses.api.kreosoft.space/";
 
@@ -16,7 +17,7 @@ function App() {
         <AppNavbar />
         <ToastContainer />
         <section className="content-page">
-          <AppRouter />
+          <AppRouter /> 
         </section>
       </Suspense>
     </div>

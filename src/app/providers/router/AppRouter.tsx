@@ -6,7 +6,6 @@ import {
 } from "@src/shared/config/routeConfig/routeConfig";
 import { PageLoader } from "@src/shared/ui/PageLoader/PageLoader";
 import { Suspense, useCallback } from "react";
-import { Container } from "react-bootstrap";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 const AppRouter = () => {
@@ -31,7 +30,7 @@ const AppRouter = () => {
         <Route
           key={route.path}
           path={route.path}
-          element={<Container className="p-2">{renderedElement}</Container>}
+          element={renderedElement}
         />
       );
     },

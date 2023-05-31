@@ -32,10 +32,10 @@ const TeachingCoursesPage = () => {
     getTeachingCourses();
   }, []);
   return (
-    <Container>
+    <Container className="p-3">
       <Row className="d-flex align-items-center">
         <Col>
-          <h2>Преподаваемые курсы</h2>
+          <h2 className="mb-3 text-white">Преподаваемые курсы</h2>
         </Col>
         <Col className="me-3">
           <RxRows
@@ -44,7 +44,7 @@ const TeachingCoursesPage = () => {
               setView("row");
             }}
             className={`float-end ${cls.rows}`}
-            style={{ color: mode === "row" ? "blue" : "grey" }}
+            style={{ color: mode === "row" ? "cyan" : "white" }}
           />
           <BsGrid3X3
             onClick={() => {
@@ -52,7 +52,7 @@ const TeachingCoursesPage = () => {
               setView("grid");
             }}
             className={`float-end me-3 ${cls.grid}`}
-            style={{ color: mode === "grid" ? "blue" : "grey" }}
+            style={{ color: mode === "grid" ? "cyan" : "white" }}
           />
         </Col>
       </Row>

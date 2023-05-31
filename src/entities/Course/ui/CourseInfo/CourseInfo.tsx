@@ -35,12 +35,12 @@ export const CourseInfo = (props: CourseInfoProps) => {
         className="mt-4"
       >
         <Tab eventKey="req" title="Требования к курсу">
-          <div className="border-start border-bottom border-end p-3 text-break">
+          <div className="border-start border-bottom border-end p-3 text-break bg-white text-black">
             {parse(Course.requirements)}
           </div>
         </Tab>
         <Tab eventKey="ann" title="Аннотация">
-          <div className="border-start border-bottom border-end p-3 text-break">
+          <div className="border-start border-bottom border-end p-3 text-break bg-white text-black">
             {parse(Course.annotations)}
           </div>
         </Tab>

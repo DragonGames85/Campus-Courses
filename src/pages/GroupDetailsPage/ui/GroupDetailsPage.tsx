@@ -48,11 +48,11 @@ const GroupDetailsPage = () => {
   }, [id]);
 
   return (
-    <Container>
+    <Container className="p-3">
       <Row className="d-flex align-items-center">
         <Col>
           {groupName && !isLoading && !GroupLoading && (
-            <h2>Группа - {groupName}</h2>
+            <h2 className="text-white mb-3">Группа - {groupName}</h2>
           )}
           {(isLoading || GroupLoading) && <h2>Загрузка...</h2>}
         </Col>
@@ -63,7 +63,7 @@ const GroupDetailsPage = () => {
               setView("row");
             }}
             className={`float-end ${cls.rows}`}
-            style={{ color: mode === "row" ? "blue" : "grey" }}
+            style={{ color: mode === "row" ? "cyan" : "white" }}
           />
           <BsGrid3X3
             onClick={() => {
@@ -71,7 +71,7 @@ const GroupDetailsPage = () => {
               setView("grid");
             }}
             className={`float-end me-3 ${cls.grid}`}
-            style={{ color: mode === "grid" ? "blue" : "grey" }}
+            style={{ color: mode === "grid" ? "cyan" : "white" }}
           />
         </Col>
       </Row>
